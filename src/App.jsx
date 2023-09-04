@@ -21,8 +21,11 @@ const firebaseApp = initializeApp({
 });
 
 export const App = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [area, setArea] = useState("");
+  const [nascimento, setNascimento] = useState("");
+  const [pronomes, setPronomes] = useState("");
+  const [sexo, setSexo] = useState("");
+  const [telefone, setTelefone] = useState("");
   const [users, setUsers] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState(null);
 
@@ -30,35 +33,56 @@ export const App = () => {
   const usersRef = ref(database, "users");
 
   async function criarDado() {
+    if (!area || !nascimento || !pronomes || !sexo || !telefone) {
+      alert("Preencha todos os campos obrigatórios.");
+      return;
+    }
     try {
       const newUserRef = push(usersRef);
       await set(newUserRef, {
-        name,
-        email
+        area,
+        nascimento,
+        pronomes,
+        sexo,
+        telefone
       });
-      console.log("dados salvos com sucesso");
-      setName("");
-      setEmail("");
+      alert("dados salvos com sucesso");
+      setArea("");
+      setNascimento("");
+      setPronomes("");
+      setSexo("");
+      setTelefone("");
     } catch (e) {
       console.error("Error adding data: ", e);
     }
   }
-
+  
   async function updateUser(id) {
+    if (!area || !nascimento || !pronomes || !sexo || !telefone) {
+      alert("Preencha todos os campos obrigatórios.");
+      return;
+    }
     try {
       const userRef = ref(database, `users/${id}`);
       await set(userRef, {
-        name,
-        email
+        area,
+        nascimento,
+        pronomes,
+        sexo,
+        telefone
       });
-      console.log("dados atualizados com sucesso");
+      alert("dados atualizados com sucesso");
       setSelectedUserId(null);
-      setName("");
-      setEmail("");
+      setArea("");
+      setNascimento("");
+      setPronomes("");
+      setSexo("");
+      setTelefone("");
     } catch (e) {
       console.error("Error updating data: ", e);
     }
   }
+   
 
   useEffect(() => {
     const getUsers = onValue(usersRef, (snapshot) => {
@@ -78,31 +102,57 @@ export const App = () => {
   }, []);
 
   async function deleteUser(id) {
-    const userRef = ref(database, `users/${id}`);
-    await remove(userRef);
-  }
-
+      const confirmDelete = window.confirm("Você tem certeza que deseja excluir este usuário?");
+      if (!confirmDelete) {
+        return;
+      }
+    
+      const userRef = ref(database, `users/${id}`);
+      await remove(userRef);
+    }
+    
   function editUser(id) {
     const selectedUser = users.find((user) => user.id === id);
     setSelectedUserId(id);
-    setName(selectedUser.name);
-    setEmail(selectedUser.email);
+    setArea(selectedUser.area);
+    setNascimento(selectedUser.nascimento);
+    setPronomes(selectedUser.pronomes);
+    setSexo(selectedUser.sexo);
+    setTelefone(selectedUser.telefone);
   }
 
   return (
     <div>
       <input
-        type="text"
-        placeholder="Nome"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <input
-        type="email"
-        placeholder="E-mail"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+  type="text"
+  placeholder="Área"
+  value={area}
+  onChange={(e) => setArea(e.target.value)}
+/>
+<input
+  type="text"
+  placeholder="Data de Nascimento"
+  value={nascimento}
+  onChange={(e) => setNascimento(e.target.value)}
+/>
+<input
+  type="text"
+  placeholder="Pronomes"
+  value={pronomes}
+  onChange={(e) => setPronomes(e.target.value)}
+/>
+<input
+  type="text"
+  placeholder="Sexo"
+  value={sexo}
+  onChange={(e) => setSexo(e.target.value)}
+/>
+<input
+  type="text"
+  placeholder="Telefone"
+  value={telefone}
+  onChange={(e) => setTelefone(e.target.value)}
+/>
       {selectedUserId ? (
         <button onClick={() => updateUser(selectedUserId)}>Atualizar</button>
       ) : (
@@ -112,7 +162,7 @@ export const App = () => {
       <ul>
         {users.map((user) => (
           <li key={user.id}>
-            {user.name} - {user.email}{" "}
+            {user.area} - {user.nascimento} - {user.pronomes} - {user.sexo} - {user.telefone}{" "}
             <button onClick={() => deleteUser(user.id)}>Deletar</button>{" "}
             <button onClick={() => editUser(user.id)}>Editar</button>
           </li>
